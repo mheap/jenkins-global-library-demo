@@ -2,17 +2,21 @@
 
 package com.michaelheap;
 
-def execute() {
-  node {
-    checkout scm
-    sh 'npm install'
-    sh 'npm test'
-    sh 'npm run lint'
-    sh 'npm run build-linux'
-    dir('dist') {
-      archiveArtifacts artifacts: '*.AppImage', fingerprint: true;
+def run(Object step){
+    try {
+        step.execute();
+    } catch (err) {
+        currentBuild.result = "FAILURE"
+        error(message)
     }
-  }
+}
+
+def execute() {
+    this.run(new Checkout());
+    this.run(new InstallDeps());
+    this.run(new Test());
+    this.run(new Lint());
+    this.run(new Build());
 }
 
 return this;
